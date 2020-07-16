@@ -5,6 +5,7 @@
 _List IDs of all active jobs._
 
     # Example
+
     curl http://host:8000/job-manager/jobs
     [
         "pl1E9_NMD8arJ3u5o8Pr9Q"
@@ -15,6 +16,7 @@ _List IDs of all active jobs._
 _Start a new job._
 
     # Example
+
     cat new_job_data.json
     {
         "hash": "502a515f3b0c661ae0532da64863157a4e7c2b908351a15de1e59dc6fa0327ed695a9708ebaf312a1dd70617b573af6b52f45a380ccb29a3104f85560a102477",
@@ -36,6 +38,7 @@ _Start a new job._
 _Get information on a running job._
 
     # Example
+
     curl http://host:8000/job-manager/jobs/UVpxMTeqgMijLlbmNI8A_A
     {
         "machine_id": "735d39eb6dc94acdadc9d019ff54fb1f",
@@ -59,6 +62,7 @@ _Get information on a running job._
 _Advance running job._
 
     # Example
+
     cat job_stage_result.json
     {
         "b57caaac4e5b4444a4169ce784a35201": [
@@ -77,6 +81,7 @@ _Advance running job._
 _Abort running job._
 
     # Example
+
     cat job_status.json
     {
         "status": "aborted"
@@ -96,6 +101,7 @@ _Abort running job._
 _List IDs of all finished/failed jobs._
 
     # Example
+
     curl http://host:8000/job-manager/history
     [
         "pl1E9_NMD8arJ3u5o8Pr9Q",
@@ -111,6 +117,7 @@ _List IDs of all finished/failed jobs._
 _Get information on a finished/failed job._
 
     # Example
+    
     curl http://host:8000/job-manager/history/UVpxMTeqgMijLlbmNI8A_A
     {
         "machine_id": "735d39eb6dc94acdadc9d019ff54fb1f",
