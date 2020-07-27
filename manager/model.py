@@ -96,3 +96,4 @@ class WorkerRequest:
     data_cache_path = "data_cache_path"
     inputs = "inputs"
     configs = "configs"
+    type = "type"
