@@ -30,9 +30,9 @@ class Conf:
         api = "pipelines"
 
     @simple_env_var.section
-    class WorkerManager:
-        url = "http://worker-manager"
-        api = "workers"
+    class DeploymentManager:
+        url = "http://deployment-manager"
+        api = "deployments"
 
     @simple_env_var.section
     class MachineRegistry:
