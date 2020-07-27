@@ -100,7 +100,8 @@ class Worker(threading.Thread):
             model.WorkerRequest.image: worker[model.Worker.image],
             model.WorkerRequest.data_cache_path: worker[model.Worker.data_cache_path],
             model.WorkerRequest.configs: worker[model.Worker.configs] or dict(),
-            model.WorkerRequest.inputs: inputs
+            model.WorkerRequest.inputs: inputs,
+            model.WorkerRequest.type: "worker"
         }
         worker[model.Worker.configs][conf.WorkerCallback.env_var] = "{}/{}/{}".format(
             conf.WorkerCallback.url,
