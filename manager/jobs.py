@@ -108,7 +108,7 @@ class Worker(threading.Thread):
             self.name
         )
         resp = requests.post(
-            "{}/{}".format(conf.WorkerManager.url, conf.WorkerManager.api),
+            "{}/{}".format(conf.DeploymentManager.url, conf.DeploymentManager.api),
             json=worker
         )
         if not resp.status_code == 200:
@@ -122,14 +122,14 @@ class Worker(threading.Thread):
             try:
                 data = self.input.get(timeout=5)
                 if data.get(model.Job.status) == model.JobStatus.aborted:
-                    resp = requests.delete("{}/{}/{}".format(conf.WorkerManager.url, conf.WorkerManager.api, worker_instance))
+                    resp = requests.delete("{}/{}/{}".format(conf.DeploymentManager.url, conf.DeploymentManager.api, worker_instance))
                     if not resp.status_code == 200:
                         logger.warning("worker '{}' could not be stopped - {}".format(worker_instance, resp.status_code))
                     raise Abort
                 if worker_instance in data:
                     return data[worker_instance] if isinstance(data[worker_instance], list) else [data[worker_instance]]
             except queue.Empty:
-                resp = requests.get("{}/{}/{}".format(conf.WorkerManager.url, conf.WorkerManager.api, worker_instance))
+                resp = requests.get("{}/{}/{}".format(conf.DeploymentManager.url, conf.DeploymentManager.api, worker_instance))
                 if not resp.status_code == 200:
                     fail_safe += 1
                 if fail_safe > 1:
