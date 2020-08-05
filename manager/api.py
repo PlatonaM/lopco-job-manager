@@ -48,7 +48,10 @@ class ActiveJobs:
     def on_get(self, req: falcon.request.Request, resp: falcon.response.Response):
         reqDebugLog(req)
         try:
-            data = [key.decode() for key in self.__kvs.keys()]
+            # data = [key.decode() for key in self.__kvs.keys()]
+            data = dict()
+            for key in self.__kvs.keys():
+                data[key.decode()] = json.loads(self.__kvs.get(key))
             resp.content_type = falcon.MEDIA_JSON
             resp.body = json.dumps(data)
             resp.status = falcon.HTTP_200
@@ -125,7 +128,10 @@ class JobHistory:
     def on_get(self, req: falcon.request.Request, resp: falcon.response.Response):
         reqDebugLog(req)
         try:
-            data = [key.decode() for key in self.__kvs.keys()]
+            # data = [key.decode() for key in self.__kvs.keys()]
+            data = dict()
+            for key in self.__kvs.keys():
+                data[key.decode()] = json.loads(self.__kvs.get(key))
             resp.content_type = falcon.MEDIA_JSON
             resp.body = json.dumps(data)
             resp.status = falcon.HTTP_200
