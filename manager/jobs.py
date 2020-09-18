@@ -151,13 +151,22 @@ class Worker(threading.Thread):
                 )
                 if stage[model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.single:
                     outputs = list()
+                    inputs = list()
                     for output in self.__job_data[model.Job.stages][stage_count][model.JobStage.outputs]:
+                        input = self.__mapInput(output, stage[model.PipelineStage.input_map])
                         worker_instance = self.__startWorker(
                             stage[model.PipelineStage.worker],
-                            self.__mapInput(output, stage[model.PipelineStage.input_map])
+                            input
                         )
+                        inputs.append(input)
                         outputs += self.__waitForWorkerResult(worker_instance)
-                    self.__setJobStage({model.JobStage.id: stage[model.PipelineStage.id], model.JobStage.outputs: outputs})
+                    self.__setJobStage(
+                        {
+                            model.JobStage.id: stage[model.PipelineStage.id],
+                            model.JobStage.inputs: inputs,
+                            model.JobStage.outputs: outputs
+                        }
+                    )
                 elif stage[model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.multiple:
                     prefix = 1
                     inputs = dict()
@@ -166,7 +175,13 @@ class Worker(threading.Thread):
                         prefix += 1
                     worker_instance = self.__startWorker(stage[model.PipelineStage.worker], inputs)
                     outputs = self.__waitForWorkerResult(worker_instance)
-                    self.__setJobStage({model.JobStage.id: stage[model.PipelineStage.id], model.JobStage.outputs: outputs})
+                    self.__setJobStage(
+                        {
+                            model.JobStage.id: stage[model.PipelineStage.id],
+                            model.JobStage.inputs: inputs,
+                            model.JobStage.outputs: outputs
+                        }
+                    )
                 else:
                     raise RuntimeError(
                         "unknown worker input type '{}'".format(
