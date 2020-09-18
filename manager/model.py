@@ -39,6 +39,7 @@ class Job:
 
 class JobStage:
     id = "id"
+    inputs = "inputs"
     outputs = "outputs"
 
 
