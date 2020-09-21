@@ -57,7 +57,7 @@ class Pipeline:
 
 
 class PipelineStage:
-    id = "id"
+    description = "description"
     worker = "worker"
     input_map = "input_map"
 
