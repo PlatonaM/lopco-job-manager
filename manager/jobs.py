@@ -72,13 +72,13 @@ class Worker(threading.Thread):
         self.__job_data[model.Job.pipeline_id] = pipeline_id
         self.__active_kvs.set(self.name, json.dumps(self.__job_data))
 
-    def __setJobStage(self, stage):
-        self.__job_data[model.Job.stages].append(stage)
+    def __setJobStage(self, st_num, st_data):
+        self.__job_data[model.Job.stages][str(st_num)] = st_data
         self.__active_kvs.set(self.name, json.dumps(self.__job_data))
 
     def __cleanup(self):
-        for stage in self.__job_data[model.Job.stages]:
-            for output in stage[model.JobStage.outputs]:
+        for st_num in range(0, len(self.__job_data[model.Job.stages])):
+            for output in self.__job_data[model.Job.stages][str(st_num)][model.JobStage.outputs]:
                 if isinstance(output, dict):
                     for file in output.values():
                         try:
@@ -141,43 +141,48 @@ class Worker(threading.Thread):
         self.__setJobStatus(model.JobStatus.running)
         try:
             self.__getPipeline()
-            stage_count = 0
-            for stage in self.__pipeline[model.Pipeline.stages]:
+            logger.info(self.__pipeline[model.Pipeline.stages])
+            for st_num in range(0, len(self.__pipeline[model.Pipeline.stages])):
                 logger.info(
                     "{}: executing stage '{}' of pipeline '{}'".format(
-                        self.name, stage[model.PipelineStage.id],
+                        self.name,
+                        st_num,
                         self.__job_data[model.Job.pipeline_id]
                     )
                 )
-                if stage[model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.single:
+                if st_num == 0:
+                    prev_outputs = self.__job_data[model.Job.init_sources]
+                else:
+                    prev_outputs = self.__job_data[model.Job.stages][str(st_num - 1)][model.JobStage.outputs]
+                if self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.single:
                     outputs = list()
                     inputs = list()
-                    for output in self.__job_data[model.Job.stages][stage_count][model.JobStage.outputs]:
-                        input = self.__mapInput(output, stage[model.PipelineStage.input_map])
+                    for output in prev_outputs:
+                        input = self.__mapInput(output, self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.input_map])
                         worker_instance = self.__startWorker(
-                            stage[model.PipelineStage.worker],
+                            self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker],
                             input
                         )
                         inputs.append(input)
                         outputs += self.__waitForWorkerResult(worker_instance)
                     self.__setJobStage(
+                        st_num,
                         {
-                            model.JobStage.id: stage[model.PipelineStage.id],
                             model.JobStage.inputs: inputs,
                             model.JobStage.outputs: outputs
                         }
                     )
-                elif stage[model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.multiple:
+                elif self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.multiple:
                     prefix = 1
                     inputs = dict()
-                    for output in self.__job_data[model.Job.stages][stage_count][model.JobStage.outputs]:
-                        inputs.update(self.__mapInput(output, stage[model.PipelineStage.input_map], "_{}_".format(prefix)))
+                    for output in prev_outputs:
+                        inputs.update(self.__mapInput(output, self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.input_map], "_{}_".format(prefix)))
                         prefix += 1
-                    worker_instance = self.__startWorker(stage[model.PipelineStage.worker], inputs)
+                    worker_instance = self.__startWorker(self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker], inputs)
                     outputs = self.__waitForWorkerResult(worker_instance)
                     self.__setJobStage(
+                        st_num,
                         {
-                            model.JobStage.id: stage[model.PipelineStage.id],
                             model.JobStage.inputs: inputs,
                             model.JobStage.outputs: outputs
                         }
@@ -185,10 +190,9 @@ class Worker(threading.Thread):
                 else:
                     raise RuntimeError(
                         "unknown worker input type '{}'".format(
-                            stage[model.PipelineStage.worker][model.Worker.input][model.WokerIO.type]
+                            self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type]
                         )
                     )
-                stage_count += 1
             logger.info("{}: finished".format(self.name))
             self.__setJobStatus(model.JobStatus.finished)
         except Abort:
