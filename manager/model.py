@@ -35,6 +35,7 @@ class Job:
     stages = "stages"
     pipeline_id = "pipeline_id"
     created = "created"
+    init_sources = "init_sources"
 
 
 class JobStage:
