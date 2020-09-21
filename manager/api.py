@@ -70,13 +70,9 @@ class ActiveJobs:
                 logger.info("new job '{}'".format(job_id))
                 job_data = dict()
                 job_data[model.Job.machine_id] = data[model.NewJobRequest.machine_id]
+                job_data[model.Job.init_sources] = [{"init_source": data[model.NewJobRequest.file_name]}]
                 job_data[model.Job.status] = model.JobStatus.pending
-                job_data[model.Job.stages] = [
-                    {
-                        model.JobStage.id: "init",
-                        model.JobStage.outputs: [{"init_source": data[model.NewJobRequest.file_name]}]
-                    }
-                ]
+                job_data[model.Job.stages] = dict()
                 job_data[model.Job.pipeline_id] = None
                 job_data[model.Job.created] = '{}Z'.format(datetime.datetime.utcnow().isoformat())
                 self.__kvs.set(job_id, json.dumps(job_data))
