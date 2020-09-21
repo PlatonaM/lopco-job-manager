@@ -141,7 +141,6 @@ class Worker(threading.Thread):
         self.__setJobStatus(model.JobStatus.running)
         try:
             self.__getPipeline()
-            logger.info(self.__pipeline[model.Pipeline.stages])
             for st_num in range(0, len(self.__pipeline[model.Pipeline.stages])):
                 logger.info(
                     "{}: executing stage '{}' of pipeline '{}'".format(
