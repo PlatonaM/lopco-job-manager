@@ -172,7 +172,7 @@ class Worker(threading.Thread):
                         }
                     )
                 elif self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.multiple:
-                    prefix = 1
+                    prefix = 0
                     inputs = dict()
                     for output in prev_outputs:
                         inputs.update(self.__mapInput(output, self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.input_map], "_{}_".format(prefix)))
