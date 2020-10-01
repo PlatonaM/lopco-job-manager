@@ -14,7 +14,7 @@
    limitations under the License.
 """
 
-__all__ = ("Job", "JobStatus", "JobStage", "NewJobRequest", "Pipeline", "Machine", "PipelineStage")
+__all__ = ("Job", "JobStatus", "JobStage", "NewJobRequest", "Pipeline", "DataSource", "PipelineStage")
 
 
 class NewJobRequest:
@@ -23,7 +23,7 @@ class NewJobRequest:
     file_name = "file_name"
 
 
-class Machine:
+class DataSource:
     name = "name"
     pipeline_id = "pipeline_id"
     type_id = "type_id"
