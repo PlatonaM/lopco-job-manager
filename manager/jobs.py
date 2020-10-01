@@ -96,12 +96,18 @@ class Worker(threading.Thread):
         return input
 
     def __startWorker(self, worker: dict, inputs: dict):
+        if worker[model.Worker.configs]:
+            configs = worker[model.Worker.configs].copy()
+        else:
+            configs = dict()
+        configs["DS_PLATFORM_ID"] = self.__job_data[model.Job.ds_platform_id]
+        configs["DS_PLATFORM_TYPE_ID"] = self.__job_data[model.Job.ds_platform_type_id]
         worker = {
             model.WorkerRequest.id: worker[model.Worker.id],
             model.WorkerRequest.name: worker[model.Worker.name],
             model.WorkerRequest.image: worker[model.Worker.image],
             model.WorkerRequest.data_cache_path: worker[model.Worker.data_cache_path],
-            model.WorkerRequest.configs: worker[model.Worker.configs] or dict(),
+            model.WorkerRequest.configs: configs,
             model.WorkerRequest.inputs: inputs,
             model.WorkerRequest.type: "worker"
         }
