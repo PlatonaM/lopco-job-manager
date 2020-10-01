@@ -26,7 +26,8 @@ class NewJobRequest:
 class DataSource:
     name = "name"
     pipeline_id = "pipeline_id"
-    type_id = "type_id"
+    platform_id = "platform_id"
+    platform_type_id = "platform_type_id"
 
 
 class Job:
