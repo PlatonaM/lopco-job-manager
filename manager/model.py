@@ -18,7 +18,7 @@ __all__ = ("Job", "JobStatus", "JobStage", "NewJobRequest", "Pipeline", "DataSou
 
 
 class NewJobRequest:
-    machine_id = "machine_id"
+    ds_id = "ds_id"
     hash = "hash"
     file_name = "file_name"
 
