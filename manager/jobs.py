@@ -60,16 +60,18 @@ class Worker(threading.Thread):
 
     def __getPipeline(self):
         resp = requests.get(
-            "{}/{}/{}".format(conf.MachineRegistry.url, conf.MachineRegistry.api, self.__job_data[model.Job.machine_id])
+            "{}/{}/{}".format(conf.MachineRegistry.url, conf.MachineRegistry.api, self.__job_data[model.Job.ds_id])
         )
         if not resp.status_code == 200:
             raise GetPipelineError("could not get pipeline id - {}".format(resp.status_code))
-        pipeline_id = resp.json()[model.Machine.pipeline_id]
-        resp = requests.get("{}/{}/{}".format(conf.PipelineRegistry.url, conf.PipelineRegistry.api, pipeline_id))
+        ds_data = resp.json()
+        resp = requests.get("{}/{}/{}".format(conf.PipelineRegistry.url, conf.PipelineRegistry.api, ds_data[model.DataSource.pipeline_id]))
         if not resp.status_code == 200:
             raise GetPipelineError("could not get pipeline - {}".format(resp.status_code))
         self.__pipeline = resp.json()
-        self.__job_data[model.Job.pipeline_id] = pipeline_id
+        self.__job_data[model.Job.pipeline_id] = ds_data[model.DataSource.pipeline_id]
+        self.__job_data[model.Job.ds_platform_id] = ds_data[model.DataSource.platform_id]
+        self.__job_data[model.Job.ds_platform_type_id] = ds_data[model.DataSource.platform_type_id]
         self.__active_kvs.set(self.name, json.dumps(self.__job_data))
 
     def __setJobStage(self, st_num, st_data):
