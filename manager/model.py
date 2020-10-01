@@ -31,7 +31,9 @@ class DataSource:
 
 
 class Job:
-    machine_id = "machine_id"
+    ds_id = "ds_id"
+    ds_platform_id = "ds_platform_id"
+    ds_platform_type_id = "ds_platform_type_id"
     status = "status"
     stages = "stages"
     pipeline_id = "pipeline_id"
