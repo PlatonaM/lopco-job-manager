@@ -64,12 +64,12 @@ class ActiveJobs:
         try:
             data = json.load(req.bounded_stream)
             job_id = base64.urlsafe_b64encode(
-                hashlib.md5("{}{}".format(data[model.NewJobRequest.machine_id], data[model.NewJobRequest.hash]).encode()).digest()
+                hashlib.md5("{}{}".format(data[model.NewJobRequest.ds_id], data[model.NewJobRequest.hash]).encode()).digest()
             ).decode().rstrip('=')
             if job_id.encode() not in self.__kvs.keys():
                 logger.info("new job '{}'".format(job_id))
                 job_data = dict()
-                job_data[model.Job.machine_id] = data[model.NewJobRequest.machine_id]
+                job_data[model.Job.ds_id] = data[model.NewJobRequest.ds_id]
                 job_data[model.Job.init_sources] = [{"init_source": data[model.NewJobRequest.file_name]}]
                 job_data[model.Job.status] = model.JobStatus.pending
                 job_data[model.Job.stages] = dict()
