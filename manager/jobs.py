@@ -27,6 +27,7 @@ import time
 import json
 import requests
 import os
+import datetime
 
 
 logger = getLogger(__name__.split(".", 1)[-1])
@@ -164,6 +165,7 @@ class Worker(threading.Thread):
                 if self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.single:
                     outputs = list()
                     inputs = list()
+                    start_time = '{}Z'.format(datetime.datetime.utcnow().isoformat())
                     for output in prev_outputs:
                         input = self.__mapInput(output, self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.input_map])
                         worker_instance = self.__startWorker(
@@ -176,12 +178,15 @@ class Worker(threading.Thread):
                         st_num,
                         {
                             model.JobStage.inputs: inputs,
-                            model.JobStage.outputs: outputs
+                            model.JobStage.outputs: outputs,
+                            model.JobStage.started: start_time,
+                            model.JobStage.completed: '{}Z'.format(datetime.datetime.utcnow().isoformat())
                         }
                     )
                 elif self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.multiple:
                     prefix = 0
                     inputs = list()
+                    start_time = '{}Z'.format(datetime.datetime.utcnow().isoformat())
                     for output in prev_outputs:
                         inputs.append(self.__mapInput(output, self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.input_map], "_{}_".format(prefix)))
                         prefix += 1
@@ -191,7 +196,9 @@ class Worker(threading.Thread):
                         st_num,
                         {
                             model.JobStage.inputs: inputs,
-                            model.JobStage.outputs: outputs
+                            model.JobStage.outputs: outputs,
+                            model.JobStage.started: start_time,
+                            model.JobStage.completed: '{}Z'.format(datetime.datetime.utcnow().isoformat())
                         }
                     )
                 else:
