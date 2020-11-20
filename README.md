@@ -1,3 +1,68 @@
+### Data Structures
+
+#### Job
+
+    {
+        "ds_id": <string>,
+        "init_sources": [
+            {
+                "init_source": <string>
+            },
+            ...
+        ],
+        "status": <string>("pending" / "running" / "finished" / "failed" / "aborted"),
+        "stages": {
+            "0": {
+                "inputs": [
+                    {
+                        <string>: <string/number>,
+                        ...
+                    },
+                    ...
+                ],
+                "outputs": [
+                    {
+                        <string>: <string/number>,
+                        ...
+                    },
+                    ...
+                ],
+                "started": <string>,
+                "completed": <string>
+            },
+            "1": {
+                ...
+            },
+            ...
+        },
+        "pipeline_id": <string>,
+        "created": <string>,
+        "ds_platform_id": <string>,
+        "ds_platform_type_id": <string>
+    }
+
+#### New Job
+
+    {
+        "hash": <string>,
+        "ds_id": <string>,
+        "file_name": <string>
+    }
+
+#### Worker Result Callback
+
+    {
+        <string>: [
+            {
+                <string>: <string/number>,
+                ...
+            },
+            ...
+        ]
+    }
+
+### API
+
 #### /jobs
 
 **GET**
