@@ -7,8 +7,7 @@
         "init_sources": [
             {
                 "init_source": <string>
-            },
-            ...
+            }
         ],
         "status": <string>("pending" / "running" / "finished" / "failed" / "aborted"),
         "stages": {
