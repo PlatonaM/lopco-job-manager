@@ -2,14 +2,58 @@
 
 **GET**
 
-_List IDs of all active jobs._
+_List all active jobs._
 
     # Example
 
-    curl http://host:8000/job-manager/jobs
-    [
-        "pl1E9_NMD8arJ3u5o8Pr9Q"
-    ]
+    curl http://<host>/jobs
+    {
+        "MA2uh3-yxrJT0eaqR4MojQ": {
+            "ds_id": "098z0g976gf76ftfj",
+            "init_sources": [
+                {
+                    "init_source": "5c3759fed6c241db8728219cd650d9f1"
+                }
+            ],
+            "status": "running",
+            "stages": {
+                "0": {
+                    "inputs": [
+                        {
+                            "xlsx_file": "5c3759fed6c241db8728219cd650d9f1"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "csv_file": "e5d0074b058a4d6b9aa6fea6e3dcf530",
+                            "line_count": 123726
+                        }
+                    ],
+                    "started": "2020-11-20T07:42:32.783796Z",
+                    "completed": "2020-11-20T07:42:36.126325Z"
+                },
+                "1": {
+                    "inputs": [
+                        {
+                            "input_csv": "e5d0074b058a4d6b9aa6fea6e3dcf530"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "output_csv": "c8da879e8c6144879b26d9e0c54d7113",
+                            "line_count": 123726
+                        }
+                    ],
+                    "started": "2020-11-20T07:42:36.132284Z",
+                    "completed": "2020-11-20T07:42:37.071775Z"
+                }
+            },
+            "pipeline_id": "677f99d4-2ec7-450c-add2-8b7c5f7f171c",
+            "created": "2020-11-20T07:42:32.731518Z",
+            "ds_platform_id": "device:aeb83bf0-c50c-48e9-91b6-4db07c65c99c",
+            "ds_platform_type_id": "device-type:c5940477-afe5-493c-9a9e-8043f8de7acd"
+        }
+    }
 
 **POST**
 
@@ -20,14 +64,14 @@ _Start a new job._
     cat new_job_data.json
     {
         "hash": "502a515f3b0c661ae0532da64863157a4e7c2b908351a15de1e59dc6fa0327ed695a9708ebaf312a1dd70617b573af6b52f45a380ccb29a3104f85560a102477",
-        "machine_id": "735d39eb6dc94acdadc9d019ff54fb1f",
-        "file_name": "d84d28ad9e43459a8364b1a1f5c4c44d"
+        "ds_id": "098z0g976gf76ftfj",
+        "file_name": "51613626e8f342bb810d4ce0aaee4ca3"
     }
 
     curl \
     -d @new_job_data.json \
     -H 'Content-Type: application/json' \
-    -X POST http://host:8000/job-manager/jobs
+    -X POST http://<host>/jobs
 
 ----
 
@@ -39,23 +83,53 @@ _Get information on a running job._
 
     # Example
 
-    curl http://host:8000/job-manager/jobs/UVpxMTeqgMijLlbmNI8A_A
+    curl http://<host>/jobs/MA2uh3-yxrJT0eaqR4MojQ
     {
-        "machine_id": "735d39eb6dc94acdadc9d019ff54fb1f",
-        "status": "running",
-        "stages": [
+        "ds_id": "098z0g976gf76ftfj",
+        "init_sources": [
             {
-                "id": "init",
-                "outputs": [
-                    {
-                        "init_source": "5bb6e7a9fbf14e619956f76d7bbfcf17"
-                    }
-                ]
+                "init_source": "5c3759fed6c241db8728219cd650d9f1"
             }
         ],
-        "pipeline_id": "a34f4ba9-13ad-4ab5-a7e8-d23157513466",
-        "created": "2020-07-16T10:15:53.278087Z"
+        "status": "running",
+        "stages": {
+            "0": {
+                "inputs": [
+                    {
+                        "xlsx_file": "5c3759fed6c241db8728219cd650d9f1"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "csv_file": "e5d0074b058a4d6b9aa6fea6e3dcf530",
+                        "line_count": 123726
+                    }
+                ],
+                "started": "2020-11-20T07:42:32.783796Z",
+                "completed": "2020-11-20T07:42:36.126325Z"
+            },
+            "1": {
+                "inputs": [
+                    {
+                        "input_csv": "e5d0074b058a4d6b9aa6fea6e3dcf530"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "output_csv": "c8da879e8c6144879b26d9e0c54d7113",
+                        "line_count": 123726
+                    }
+                ],
+                "started": "2020-11-20T07:42:36.132284Z",
+                "completed": "2020-11-20T07:42:37.071775Z"
+            }
+        },
+        "pipeline_id": "677f99d4-2ec7-450c-add2-8b7c5f7f171c",
+        "created": "2020-11-20T07:42:32.731518Z",
+        "ds_platform_id": "device:aeb83bf0-c50c-48e9-91b6-4db07c65c99c",
+        "ds_platform_type_id": "device-type:c5940477-afe5-493c-9a9e-8043f8de7acd"
     }
+
 
 **POST**
 
@@ -63,20 +137,102 @@ _Advance running job._
 
     # Example
 
-    cat job_stage_result.json
+    cat job_stage_single_result.json
     {
-        "b57caaac4e5b4444a4169ce784a35201": [
-                {
-                    "csv_file": "49423bf25a104ce0929adb519926bfcd"
-                }
+        "9e429e84-b3f4-4f70-b3d9-e5917f629d3b": [
+            {
+                "csv_file": "c92730964a5044a7b5935c2cea3e882a",
+                "line_count": 93702
+            }
         ]
     }
 
     curl \
-    -d @job_stage_result.json \
+    -d @job_stage_single_result.json \
     -H 'Content-Type: application/json' \
-    -X POST http://host:8000/job-manager/jobs/UVpxMTeqgMijLlbmNI8A_A
+    -X POST http://<host>/jobs/UVpxMTeqgMijLlbmNI8A_A
 
+
+    cat job_stage_multiple_result.json
+    {
+        "db5012d4-c20f-4847-bf92-f715be0c4932": [
+            {
+                "unique_id": "ec-generator",
+                "result_table": "1b3dac542c40447a92fa556130a49a5f",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "ec-gesamt",
+                "result_table": "a6ba3b80bc9a4b508d25832b48304e9b",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "ec-prozess",
+                "result_table": "403c693c1ba643a1b4e8048a7dd28f83",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "ec-roboter",
+                "result_table": "a6f399cba34241e49bb220d5792171d9",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "roboter-ausgabe",
+                "result_table": "677af6ecff894c7a99ba319b199337b8",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "roboter-eingabe",
+                "result_table": "59d0ea3793494b42b4d442f516796f68",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "transport-gesamt",
+                "result_table": "5d5ded6eeff04b41a2762d58bba0c3bd",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "wm1-gesamt",
+                "result_table": "73266503b1e046799cbf65f65d296b10",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "wm1-heizung-reinigen",
+                "result_table": "0112f484098e425cb79d0049daf13367",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "wm1-heizung-trocknung",
+                "result_table": "279d8e31d76c4351988fa32d492c434f",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "wm2-gesamt",
+                "result_table": "08d3af1e05a14addaed048e24dd8d37c",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "wm2-heizung-reinigen",
+                "result_table": "07333b0c8f084e03be828a574a18df9c",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "wm2-heizung-trocknung",
+                "result_table": "c9f80c208262444b92feceef94a19a20",
+                "line_count": "6693"
+            },
+            {
+                "unique_id": "wm2-vakuumpumpe",
+                "result_table": "b6724d721e33464a9ec56ec52343a6f2",
+                "line_count": "6693"
+            }
+        ]
+    }
+
+    curl \
+    -d @job_stage_multiple_result.json \
+    -H 'Content-Type: application/json' \
+    -X POST http://<host>/jobs/UVpxMTeqgMijLlbmNI8A_A
 
 _Abort running job._
 
@@ -90,7 +246,7 @@ _Abort running job._
     curl \
     -d @job_status.json \
     -H 'Content-Type: application/json' \
-    -X POST http://host:8000/job-manager/jobs/pl1E9_NMD8arJ3u5o8Pr9Q
+    -X POST http://<host>/jobs/pl1E9_NMD8arJ3u5o8Pr9Q
 
 ----
 
@@ -98,15 +254,169 @@ _Abort running job._
 
 **GET**
 
-_List IDs of all finished/failed jobs._
+_List all finished/failed jobs._
 
     # Example
 
-    curl http://host:8000/job-manager/history
-    [
-        "pl1E9_NMD8arJ3u5o8Pr9Q",
-        "UVpxMTeqgMijLlbmNI8A_A"
-    ]
+    curl http://<host>/history
+    {
+        "0d-bTcQEwCwG_zcdBDuIGA": {
+            "ds_id": "098z0g976gf76ftfj",
+            "init_sources": [
+                {
+                    "init_source": "f3de23ed476d4a5b903ca108f1926ffd"
+                }
+            ],
+            "status": "finished",
+            "stages": {
+                "0": {
+                    "inputs": [
+                        {
+                            "xlsx_file": "f3de23ed476d4a5b903ca108f1926ffd"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "csv_file": "30577f02656d412e83f101b4a40bb1a4",
+                            "line_count": 93702
+                        }
+                    ],
+                    "started": "2020-11-20T07:38:29.322173Z",
+                    "completed": "2020-11-20T07:38:31.885463Z"
+                },
+                "1": {
+                    "inputs": [
+                        {
+                            "input_csv": "30577f02656d412e83f101b4a40bb1a4"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "output_csv": "e97d5d50bb994b018ba61a81d3a9ef5c",
+                            "line_count": 93702
+                        }
+                    ],
+                    "started": "2020-11-20T07:38:31.891534Z",
+                    "completed": "2020-11-20T07:38:32.584822Z"
+                },
+                "2": {
+                    "inputs": [
+                        {
+                            "source_table": "e97d5d50bb994b018ba61a81d3a9ef5c"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "unique_id": "ec-generator",
+                            "result_table": "7e30f19413e8418caf63cde07b1166a9",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "ec-gesamt",
+                            "result_table": "f29ef98d857e4f5685515ec02fb22805",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "ec-prozess",
+                            "result_table": "c213efb9ee984f98b1dad95329a2a158",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "ec-roboter",
+                            "result_table": "a8d07ed23be7473a8dda15b086b4ce4a",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "roboter-ausgabe",
+                            "result_table": "d31e7b790e8a4ae4a3f3ceb49f30d3ed",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "roboter-eingabe",
+                            "result_table": "7d699ae2b61b4d44a7c9c0389effcc27",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "transport-gesamt",
+                            "result_table": "1fafc980725b4aee807a99c9bacd5a54",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "wm1-gesamt",
+                            "result_table": "9a1cca2b68e04952a0178a8af43935fb",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "wm1-heizung-reinigen",
+                            "result_table": "1afdd8a708be4a55901b670aaccc5bea",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "wm1-heizung-trocknung",
+                            "result_table": "d92f6b3d6b4748d48d8998f10cb040ab",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "wm2-gesamt",
+                            "result_table": "a78c3d7410a242be978573113504ce8f",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "wm2-heizung-reinigen",
+                            "result_table": "671624bab6cf4e60b632417cc444c524",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "wm2-heizung-trocknung",
+                            "result_table": "05dc8da358c04348bf9dbd6175228e51",
+                            "line_count": "6693"
+                        },
+                        {
+                            "unique_id": "wm2-vakuumpumpe",
+                            "result_table": "9ed205ec098046f998621e06040a25f3",
+                            "line_count": "6693"
+                        }
+                    ],
+                    "started": "2020-11-20T07:38:32.592868Z",
+                    "completed": "2020-11-20T07:38:33.420202Z"
+                }
+            },
+            "pipeline_id": "677f99d4-2ec7-450c-add2-8b7c5f7f171c",
+            "created": "2020-11-20T07:38:29.280343Z",
+            "ds_platform_id": "device:aeb83bf0-c50c-48e9-91b6-4db07c65c99c",
+            "ds_platform_type_id": "device-type:c5940477-afe5-493c-9a9e-8043f8de7acd"
+        },
+        "MA2uh3-yxrJT0eaqR4MojQ": {
+            "ds_id": "098z0g976gf76ftfj",
+            "init_sources": [
+                {
+                    "init_source": "065e11c04134490480c65f05d118b5f9"
+                }
+            ],
+            "status": "aborted",
+            "stages": {
+                "0": {
+                    "inputs": [
+                        {
+                            "xlsx_file": "065e11c04134490480c65f05d118b5f9"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "csv_file": "06d30aae9ecc49f7be1cb47b5be279f0",
+                            "line_count": 123726
+                        }
+                    ],
+                    "started": "2020-11-20T07:58:40.385870Z",
+                    "completed": "2020-11-20T07:58:44.789344Z"
+                }
+            },
+            "pipeline_id": "677f99d4-2ec7-450c-add2-8b7c5f7f171c",
+            "created": "2020-11-20T07:58:40.236727Z",
+            "ds_platform_id": "device:aeb83bf0-c50c-48e9-91b6-4db07c65c99c",
+            "ds_platform_type_id": "device-type:c5940477-afe5-493c-9a9e-8043f8de7acd"
+        }
+    }
 
 ----
 
@@ -118,116 +428,80 @@ _Get information on a finished/failed job._
 
     # Example
     
-    curl http://host:8000/job-manager/history/UVpxMTeqgMijLlbmNI8A_A
+    curl http://<host>/history/MA2uh3-yxrJT0eaqR4MojQ
     {
-        "machine_id": "735d39eb6dc94acdadc9d019ff54fb1f",
+        "ds_id": "098z0g976gf76ftfj",
+        "init_sources": [
+            {
+                "init_source": "5c3759fed6c241db8728219cd650d9f1"
+            }
+        ],
         "status": "finished",
-        "stages": [
-            {
-                "id": "init",
+        "stages": {
+            "0": {
+                "inputs": [
+                    {
+                        "xlsx_file": "5c3759fed6c241db8728219cd650d9f1"
+                    }
+                ],
                 "outputs": [
                     {
-                        "init_source": "5bb6e7a9fbf14e619956f76d7bbfcf17"
+                        "csv_file": "e5d0074b058a4d6b9aa6fea6e3dcf530",
+                        "line_count": 123726
                     }
-                ]
+                ],
+                "started": "2020-11-20T07:42:32.783796Z",
+                "completed": "2020-11-20T07:42:36.126325Z"
             },
-            {
-                "id": "01",
+            "1": {
+                "inputs": [
+                    {
+                        "input_csv": "e5d0074b058a4d6b9aa6fea6e3dcf530"
+                    }
+                ],
                 "outputs": [
                     {
-                        "csv_file": "49423bf25a104ce0929adb519926bfcd"
+                        "output_csv": "c8da879e8c6144879b26d9e0c54d7113",
+                        "line_count": 123726
                     }
-                ]
+                ],
+                "started": "2020-11-20T07:42:36.132284Z",
+                "completed": "2020-11-20T07:42:37.071775Z"
             },
-            {
-                "id": "02",
-                "outputs": [
+            "2": {
+                "inputs": [
                     {
-                        "output_csv": "94c17cc51749447fa19db494120b9232"
+                        "source_table": "c8da879e8c6144879b26d9e0c54d7113"
                     }
-                ]
-            },
-            {
-                "id": "03",
+                ],
                 "outputs": [
                     {
                         "unique_id": "ec-generator",
-                        "result_table": "ed97da5995d240de980f50437499454b"
+                        "result_table": "34e63c28f95b48b9b5d1e4677b5b6119",
+                        "line_count": "29294"
                     },
                     {
                         "unique_id": "ec-gesamt",
-                        "result_table": "07b7b4ae399444849a5711a40b3b4fca"
+                        "result_table": "eda3ba7caa184a8cb61a4cd8c9546256",
+                        "line_count": "31981"
                     },
                     {
                         "unique_id": "ec-prozess",
-                        "result_table": "63cc6255701344b7915c3a292818828a"
+                        "result_table": "25a7de771fcc464e868079684ca3cb5e",
+                        "line_count": "31422"
                     },
                     {
                         "unique_id": "ec-roboter",
-                        "result_table": "6f131bcf20ba4e03957fc496033d1de4"
-                    },
-                    {
-                        "unique_id": "roboter-ausgabe",
-                        "result_table": "3e2bceebdbc44ae9a2c650ed3b590683"
-                    },
-                    {
-                        "unique_id": "roboter-eingabe",
-                        "result_table": "149bc605ce424604935de9f358737aef"
-                    },
-                    {
-                        "unique_id": "transport-gesamt",
-                        "result_table": "05a03cb415c94030b7ab00a7adefcdf3"
-                    },
-                    {
-                        "unique_id": "wm1-gesamt",
-                        "result_table": "428ed34798354341949628dac45d6c45"
-                    },
-                    {
-                        "unique_id": "wm1-heizung-reinigen",
-                        "result_table": "71f781558a2445e9b2de27bc7a5553f4"
-                    },
-                    {
-                        "unique_id": "wm1-heizung-trocknung",
-                        "result_table": "8eec7a91eed144239efac6de5ffdee31"
-                    },
-                    {
-                        "unique_id": "wm2-gesamt",
-                        "result_table": "4549c53f8285461183aeeab0700557d9"
-                    },
-                    {
-                        "unique_id": "wm2-heizung-reinigen",
-                        "result_table": "51105b5531ce40ce903ccb8d230eae2e"
-                    },
-                    {
-                        "unique_id": "wm2-heizung-trocknung",
-                        "result_table": "625b95a9b8384aeeb8e15dbbcdb28405"
-                    },
-                    {
-                        "unique_id": "wm2-vakuumpumpe",
-                        "result_table": "1c5a5471fb21403e867a9aaf854efca1"
+                        "result_table": "ca4ab8cb31e444039b7686ba2d9766d3",
+                        "line_count": "31029"
                     }
-                ]
-            },
-            {
-                "id": "04",
-                "outputs": [
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-                ]
+                ],
+                "started": "2020-11-20T07:42:37.078960Z",
+                "completed": "2020-11-20T07:42:38.503447Z"
             }
-        ],
-        "pipeline_id": "a34f4ba9-13ad-4ab5-a7e8-d23157513466",
-        "created": "2020-07-16T10:15:53.278087Z"
+        },
+        "pipeline_id": "677f99d4-2ec7-450c-add2-8b7c5f7f171c",
+        "created": "2020-11-20T07:42:32.731518Z",
+        "ds_platform_id": "device:aeb83bf0-c50c-48e9-91b6-4db07c65c99c",
+        "ds_platform_type_id": "device-type:c5940477-afe5-493c-9a9e-8043f8de7acd"
     }
