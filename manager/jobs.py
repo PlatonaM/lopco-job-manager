@@ -125,26 +125,6 @@ class Worker(threading.Thread):
             raise RuntimeError("could not start worker - '{}'".format(resp.status_code))
         return resp.text
 
-    def __waitForWorkerResult(self, worker_instance) -> list:
-        logger.debug("{}: waiting for worker '{}'".format(self.name, worker_instance))
-        fail_safe = 0
-        while True:
-            try:
-                data = self.input.get(timeout=5)
-                if data.get(model.Job.status) == model.JobStatus.aborted:
-                    resp = requests.delete("{}/{}/{}".format(conf.DeploymentManager.url, conf.DeploymentManager.api, worker_instance))
-                    if not resp.status_code == 200:
-                        logger.warning("worker '{}' could not be stopped - {}".format(worker_instance, resp.status_code))
-                    raise Abort
-                if worker_instance in data:
-                    return data[worker_instance] if isinstance(data[worker_instance], list) else [data[worker_instance]]
-            except queue.Empty:
-                resp = requests.get("{}/{}/{}".format(conf.DeploymentManager.url, conf.DeploymentManager.api, worker_instance))
-                if not resp.status_code == 200:
-                    fail_safe += 1
-                if fail_safe > 1:
-                    raise RuntimeError("worker '{}' quit without results".format(worker_instance))
-
     def __handleWorker(self, worker_instance) -> tuple:
         logger.debug("{}: waiting for worker '{}'".format(self.name, worker_instance))
         fail_safe = 0
