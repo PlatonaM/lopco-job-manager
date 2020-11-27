@@ -105,3 +105,7 @@ class WorkerRequest:
     inputs = "inputs"
     configs = "configs"
     type = "type"
+
+
+class WorkerState:
+    stopped = "stopped"
