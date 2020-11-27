@@ -77,6 +77,7 @@ class Worker:
     input = "input"
     output = "output"
     configs = "configs"
+    status = "status"
 
 
 class WokerIO:
