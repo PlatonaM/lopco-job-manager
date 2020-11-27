@@ -145,6 +145,52 @@ class Worker(threading.Thread):
                 if fail_safe > 1:
                     raise RuntimeError("worker '{}' quit without results".format(worker_instance))
 
+    def __handleWorker(self, worker_instance) -> tuple:
+        logger.debug("{}: waiting for worker '{}'".format(self.name, worker_instance))
+        fail_safe = 0
+        output = list()
+        log = str()
+        abort = False
+        while True:
+            try:
+                data = self.input.get(timeout=5)
+                if data.get(model.Job.status) == model.JobStatus.aborted:
+                    abort = True
+                    break
+                if worker_instance in data:
+                    output = data[worker_instance] if isinstance(data[worker_instance], list) else [data[worker_instance]]
+                    break
+            except queue.Empty:
+                resp = requests.get("{}/{}/{}".format(conf.DeploymentManager.url, conf.DeploymentManager.api, worker_instance))
+                if resp.status_code == 200:
+                    worker = resp.json()
+                    if worker[model.Worker.status] == model.WorkerState.stopped:
+                        fail_safe += 1
+                    # else:
+                    #     fail_safe = 0
+                else:
+                    fail_safe += 1
+                if fail_safe > 1:
+                    break
+        if not abort:
+            try:
+                resp = requests.get("{}/{}/{}/log".format(conf.DeploymentManager.url, conf.DeploymentManager.api, worker_instance))
+                if resp.ok:
+                    log = resp.text
+                else:
+                    raise RuntimeError(resp.status_code)
+            except Exception as ex:
+                logger.warning("could not get log for worker '{}' - {}".format(worker_instance, ex))
+        try:
+            resp = requests.delete("{}/{}/{}".format(conf.DeploymentManager.url, conf.DeploymentManager.api, worker_instance))
+            if not resp.status_code == 200:
+                raise RuntimeError(resp.status_code)
+        except Exception as ex:
+            logger.warning("could not remove worker '{}' - {}".format(worker_instance, ex))
+        if abort:
+            raise Abort
+        return output, log
+
     def run(self):
         logger.info("{}: starting ...".format(self.name))
         self.__setJobStatus(model.JobStatus.running)
