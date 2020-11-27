@@ -46,6 +46,7 @@ class JobStage:
     outputs = "outputs"
     started = "started"
     completed = "completed"
+    log = "log"
 
 
 class JobStatus:
