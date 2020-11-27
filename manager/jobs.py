@@ -211,6 +211,8 @@ class Worker(threading.Thread):
                 if self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.single:
                     outputs = list()
                     inputs = list()
+                    logs = str()
+                    no_output_ex = None
                     start_time = '{}Z'.format(datetime.datetime.utcnow().isoformat())
                     for output in prev_outputs:
                         input = self.__mapInput(output, self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.input_map])
@@ -219,16 +221,24 @@ class Worker(threading.Thread):
                             input
                         )
                         inputs.append(input)
-                        outputs += self.__waitForWorkerResult(worker_instance)
+                        output, log = self.__handleWorker(worker_instance)
+                        logs += log
+                        if not output:
+                            no_output_ex = RuntimeError("worker '{}' quit without results".format(worker_instance))
+                            break
+                        outputs += output
                     self.__setJobStage(
                         st_num,
                         {
                             model.JobStage.inputs: inputs,
                             model.JobStage.outputs: outputs,
                             model.JobStage.started: start_time,
-                            model.JobStage.completed: '{}Z'.format(datetime.datetime.utcnow().isoformat())
+                            model.JobStage.completed: '{}Z'.format(datetime.datetime.utcnow().isoformat()),
+                            model.JobStage.log: logs
                         }
                     )
+                    if no_output_ex:
+                        raise no_output_ex
                 elif self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.multiple:
                     prefix = 0
                     inputs = list()
@@ -237,16 +247,19 @@ class Worker(threading.Thread):
                         inputs.append(self.__mapInput(output, self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.input_map], "_{}_".format(prefix)))
                         prefix += 1
                     worker_instance = self.__startWorker(self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker], dict([item for input in inputs for item in input.items()]))
-                    outputs = self.__waitForWorkerResult(worker_instance)
+                    outputs, log = self.__handleWorker(worker_instance)
                     self.__setJobStage(
                         st_num,
                         {
                             model.JobStage.inputs: inputs,
                             model.JobStage.outputs: outputs,
                             model.JobStage.started: start_time,
-                            model.JobStage.completed: '{}Z'.format(datetime.datetime.utcnow().isoformat())
+                            model.JobStage.completed: '{}Z'.format(datetime.datetime.utcnow().isoformat()),
+                            model.JobStage.log: log
                         }
                     )
+                    if not outputs:
+                        raise RuntimeError("worker '{}' quit without results".format(worker_instance))
                 else:
                     raise RuntimeError(
                         "unknown worker input type '{}'".format(
