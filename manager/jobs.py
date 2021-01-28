@@ -52,6 +52,7 @@ class Worker(threading.Thread):
         self.__done_kvs = done_kvs
         self.__job_data = json.loads(self.__active_kvs.get(self.name))
         self.__pipeline = None
+        self.__stage_outputs = dict()
         self.input = queue.Queue()
         self.done = False
 
