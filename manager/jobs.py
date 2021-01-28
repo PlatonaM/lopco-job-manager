@@ -97,6 +97,52 @@ class Worker(threading.Thread):
             input["{}{}".format(prefix, key)] = output[value]
         return input
 
+    def __gen_inputs(self, input_map: dict, multi_input: bool):
+        stage_input_map = dict()
+        for _input_field, _input_source in input_map.items():
+            source_stage, source_field = _input_source.split(":")
+            if source_stage not in stage_input_map:
+                stage_input_map[source_stage] = dict()
+            stage_input_map[source_stage][_input_field] = source_field
+        multi_output_stage = None
+        for _stage in stage_input_map.keys():
+            if len(self.__stage_outputs[_stage]) > 1:
+                if multi_output_stage:
+                    raise RuntimeError("too many outputs to combine")
+                multi_output_stage = _stage
+        inputs = list()
+        if multi_output_stage:
+            for x in range(len(self.__stage_outputs[multi_output_stage])):
+                inputs.append(
+                    self.__mapInput(
+                        self.__stage_outputs[multi_output_stage][x],
+                        stage_input_map[multi_output_stage],
+                        "_{}_".format(x) if multi_input else ""
+                    )
+                )
+            for x in range(len(inputs)):
+                for _stage, _input_map in stage_input_map.items():
+                    if _stage != multi_output_stage:
+                        inputs[x].update(
+                            self.__mapInput(
+                                self.__stage_outputs[_stage][0],
+                                _input_map,
+                                "_{}_".format(x) if multi_input else "")
+                        )
+        else:
+            _input = dict()
+            for _stage, _input_map in stage_input_map.items():
+                for x in range(len(self.__stage_outputs[_stage])):
+                    _input.update(
+                        self.__mapInput(
+                            self.__stage_outputs[_stage][x],
+                            _input_map,
+                            "_{}_".format(x) if multi_input else ""
+                        )
+                    )
+            inputs.append(_input)
+        return inputs
+
     def __startWorker(self, worker: dict, inputs: dict):
         if worker[model.Worker.configs]:
             configs = worker[model.Worker.configs].copy()
@@ -177,6 +223,7 @@ class Worker(threading.Thread):
         self.__setJobStatus(model.JobStatus.running)
         try:
             self.__getPipeline()
+            self.__stage_outputs[str(0)] = self.__job_data[model.Job.init_sources]
             for st_num in range(0, len(self.__pipeline[model.Pipeline.stages])):
                 logger.info(
                     "{}: executing stage '{}' of pipeline '{}'".format(
@@ -220,6 +267,7 @@ class Worker(threading.Thread):
                     )
                     if no_output_ex:
                         raise no_output_ex
+                    self.__stage_outputs[str(st_num+1)] = outputs
                 elif self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.multiple:
                     prefix = 0
                     inputs = list()
@@ -241,12 +289,14 @@ class Worker(threading.Thread):
                     )
                     if not outputs:
                         raise RuntimeError("worker '{}' quit without results".format(worker_instance))
+                    self.__stage_outputs[str(st_num+1)] = outputs
                 else:
                     raise RuntimeError(
                         "unknown worker input type '{}'".format(
                             self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type]
                         )
                     )
+                logger.debug(self.__stage_outputs)
             logger.info("{}: finished".format(self.name))
             self.__setJobStatus(model.JobStatus.finished)
         except Abort:
