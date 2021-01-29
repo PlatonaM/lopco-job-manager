@@ -296,7 +296,6 @@ class Worker(threading.Thread):
                             self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type]
                         )
                     )
-                logger.debug(self.__stage_outputs)
             logger.info("{}: finished".format(self.name))
             self.__setJobStatus(model.JobStatus.finished)
         except Abort:
