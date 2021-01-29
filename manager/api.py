@@ -111,7 +111,7 @@ class ActiveJob:
             reqErrorLog(req, "wrong content type - '{}'".format(req.content_type))
         else:
             try:
-                self.__jobs_handler.passToWorker(job, json.load(req.bounded_stream))
+                self.__jobs_handler.pass_to_worker(job, json.load(req.bounded_stream))
             except Exception as ex:
                 resp.status = falcon.HTTP_500
                 reqErrorLog(req, ex)

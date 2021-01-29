@@ -56,11 +56,11 @@ class Worker(threading.Thread):
         self.input = queue.Queue()
         self.done = False
 
-    def __setJobStatus(self, status):
+    def __set_job_status(self, status):
         self.__job_data[model.Job.status] = status
         self.__active_kvs.set(self.name, json.dumps(self.__job_data))
 
-    def __getPipeline(self):
+    def __get_pipeline(self):
         resp = requests.get(
             "{}/{}/{}".format(conf.MachineRegistry.url, conf.MachineRegistry.api, self.__job_data[model.Job.ds_id])
         )
@@ -76,7 +76,7 @@ class Worker(threading.Thread):
         self.__job_data[model.Job.ds_platform_type_id] = ds_data[model.DataSource.platform_type_id]
         self.__active_kvs.set(self.name, json.dumps(self.__job_data))
 
-    def __setJobStage(self, st_num, st_data):
+    def __set_job_stage(self, st_num, st_data):
         self.__job_data[model.Job.stages][str(st_num)] = st_data
         self.__active_kvs.set(self.name, json.dumps(self.__job_data))
 
@@ -91,7 +91,7 @@ class Worker(threading.Thread):
                     except Exception:
                         pass
 
-    def __mapInput(self, output: dict, input_map: dict, prefix=""):
+    def __map_input(self, output: dict, input_map: dict, prefix=""):
         input = dict()
         for key, value in input_map.items():
             input["{}{}".format(prefix, key)] = output[value]
@@ -114,7 +114,7 @@ class Worker(threading.Thread):
         if multi_output_stage:
             for x in range(len(self.__stage_outputs[multi_output_stage])):
                 inputs.append(
-                    self.__mapInput(
+                    self.__map_input(
                         self.__stage_outputs[multi_output_stage][x],
                         stage_input_map[multi_output_stage],
                         "_{}_".format(x) if multi_input else ""
@@ -124,7 +124,7 @@ class Worker(threading.Thread):
                 for _stage, _input_map in stage_input_map.items():
                     if _stage != multi_output_stage:
                         inputs[x].update(
-                            self.__mapInput(
+                            self.__map_input(
                                 self.__stage_outputs[_stage][0],
                                 _input_map,
                                 "_{}_".format(x) if multi_input else "")
@@ -134,7 +134,7 @@ class Worker(threading.Thread):
             for _stage, _input_map in stage_input_map.items():
                 for x in range(len(self.__stage_outputs[_stage])):
                     _input.update(
-                        self.__mapInput(
+                        self.__map_input(
                             self.__stage_outputs[_stage][x],
                             _input_map,
                             "_{}_".format(x) if multi_input else ""
@@ -143,7 +143,7 @@ class Worker(threading.Thread):
             inputs.append(_input)
         return inputs
 
-    def __startWorker(self, worker: dict, inputs: dict):
+    def __start_worker(self, worker: dict, inputs: dict):
         if worker[model.Worker.configs]:
             configs = worker[model.Worker.configs].copy()
         else:
@@ -172,7 +172,7 @@ class Worker(threading.Thread):
             raise RuntimeError("could not start worker - '{}'".format(resp.status_code))
         return resp.text
 
-    def __handleWorker(self, worker_instance) -> tuple:
+    def __handle_worker(self, worker_instance) -> tuple:
         logger.debug("{}: waiting for worker '{}'".format(self.name, worker_instance))
         fail_safe = 0
         output = list()
@@ -220,9 +220,9 @@ class Worker(threading.Thread):
 
     def run(self):
         logger.info("{}: starting ...".format(self.name))
-        self.__setJobStatus(model.JobStatus.running)
+        self.__set_job_status(model.JobStatus.running)
         try:
-            self.__getPipeline()
+            self.__get_pipeline()
             self.__stage_outputs[str(0)] = self.__job_data[model.Job.init_sources]
             for st_num in range(1, len(self.__pipeline[model.Pipeline.stages]) + 1):
                 logger.info(
@@ -242,17 +242,17 @@ class Worker(threading.Thread):
                     no_output_ex = None
                     start_time = '{}Z'.format(datetime.datetime.utcnow().isoformat())
                     for input in inputs:
-                        worker_instance = self.__startWorker(
+                        worker_instance = self.__start_worker(
                             self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker],
                             input
                         )
-                        output, log = self.__handleWorker(worker_instance)
+                        output, log = self.__handle_worker(worker_instance)
                         logs += log
                         if not output:
                             no_output_ex = RuntimeError("worker '{}' quit without results".format(worker_instance))
                             break
                         outputs += output
-                    self.__setJobStage(
+                    self.__set_job_stage(
                         st_num,
                         {
                             model.JobStage.inputs: inputs,
@@ -271,9 +271,9 @@ class Worker(threading.Thread):
                         True
                     )
                     start_time = '{}Z'.format(datetime.datetime.utcnow().isoformat())
-                    worker_instance = self.__startWorker(self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker], dict([item for input in inputs for item in input.items()]))
-                    outputs, log = self.__handleWorker(worker_instance)
-                    self.__setJobStage(
+                    worker_instance = self.__start_worker(self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker], dict([item for input in inputs for item in input.items()]))
+                    outputs, log = self.__handle_worker(worker_instance)
+                    self.__set_job_stage(
                         st_num,
                         {
                             model.JobStage.inputs: inputs,
@@ -293,16 +293,16 @@ class Worker(threading.Thread):
                         )
                     )
             logger.info("{}: finished".format(self.name))
-            self.__setJobStatus(model.JobStatus.finished)
+            self.__set_job_status(model.JobStatus.finished)
         except Abort:
             logger.info("{}: aborted".format(self.name))
-            self.__setJobStatus(model.JobStatus.aborted)
+            self.__set_job_status(model.JobStatus.aborted)
         except RuntimeError as ex:
             logger.error("{}: failed - {}".format(self.name, ex))
-            self.__setJobStatus(model.JobStatus.failed)
+            self.__set_job_status(model.JobStatus.failed)
         except Exception as ex:
             logger.exception("{}: failed - {}".format(self.name, ex))
-            self.__setJobStatus(model.JobStatus.failed)
+            self.__set_job_status(model.JobStatus.failed)
         self.__done_kvs.set(self.name, json.dumps(self.__job_data))
         self.__active_kvs.delete(self.name)
         self.__cleanup()
@@ -329,5 +329,5 @@ class Handler(threading.Thread):
                 if self.__workers[job_id].done:
                     del self.__workers[job_id]
 
-    def passToWorker(self, job_id, data):
+    def pass_to_worker(self, job_id, data):
         self.__workers[job_id].input.put_nowait(data)
