@@ -232,23 +232,20 @@ class Worker(threading.Thread):
                         self.__job_data[model.Job.pipeline_id]
                     )
                 )
-                if st_num == 0:
-                    prev_outputs = self.__job_data[model.Job.init_sources]
-                else:
-                    prev_outputs = self.__job_data[model.Job.stages][str(st_num - 1)][model.JobStage.outputs]
                 if self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.single:
                     outputs = list()
-                    inputs = list()
+                    inputs = self.__gen_inputs(
+                        self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.input_map],
+                        False
+                    )
                     logs = str()
                     no_output_ex = None
                     start_time = '{}Z'.format(datetime.datetime.utcnow().isoformat())
-                    for output in prev_outputs:
-                        input = self.__mapInput(output, self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.input_map])
+                    for input in inputs:
                         worker_instance = self.__startWorker(
                             self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker],
                             input
                         )
-                        inputs.append(input)
                         output, log = self.__handleWorker(worker_instance)
                         logs += log
                         if not output:
@@ -269,12 +266,11 @@ class Worker(threading.Thread):
                         raise no_output_ex
                     self.__stage_outputs[str(st_num)] = outputs
                 elif self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.multiple:
-                    prefix = 0
-                    inputs = list()
+                    inputs = self.__gen_inputs(
+                        self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.input_map],
+                        True
+                    )
                     start_time = '{}Z'.format(datetime.datetime.utcnow().isoformat())
-                    for output in prev_outputs:
-                        inputs.append(self.__mapInput(output, self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.input_map], "_{}_".format(prefix)))
-                        prefix += 1
                     worker_instance = self.__startWorker(self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker], dict([item for input in inputs for item in input.items()]))
                     outputs, log = self.__handleWorker(worker_instance)
                     self.__setJobStage(
