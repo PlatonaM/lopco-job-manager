@@ -224,7 +224,7 @@ class Worker(threading.Thread):
         try:
             self.__getPipeline()
             self.__stage_outputs[str(0)] = self.__job_data[model.Job.init_sources]
-            for st_num in range(0, len(self.__pipeline[model.Pipeline.stages])):
+            for st_num in range(1, len(self.__pipeline[model.Pipeline.stages]) + 1):
                 logger.info(
                     "{}: executing stage '{}' of pipeline '{}'".format(
                         self.name,
@@ -267,7 +267,7 @@ class Worker(threading.Thread):
                     )
                     if no_output_ex:
                         raise no_output_ex
-                    self.__stage_outputs[str(st_num+1)] = outputs
+                    self.__stage_outputs[str(st_num)] = outputs
                 elif self.__pipeline[model.Pipeline.stages][str(st_num)][model.PipelineStage.worker][model.Worker.input][model.WokerIO.type] == model.WorkerIOType.multiple:
                     prefix = 0
                     inputs = list()
@@ -289,7 +289,7 @@ class Worker(threading.Thread):
                     )
                     if not outputs:
                         raise RuntimeError("worker '{}' quit without results".format(worker_instance))
-                    self.__stage_outputs[str(st_num+1)] = outputs
+                    self.__stage_outputs[str(st_num)] = outputs
                 else:
                     raise RuntimeError(
                         "unknown worker input type '{}'".format(
