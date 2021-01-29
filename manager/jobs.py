@@ -81,15 +81,15 @@ class Worker(threading.Thread):
         self.__active_kvs.set(self.name, json.dumps(self.__job_data))
 
     def __cleanup(self):
-        for st_num in range(0, len(self.__job_data[model.Job.stages])):
-            for output in self.__job_data[model.Job.stages][str(st_num)][model.JobStage.outputs]:
-                if isinstance(output, dict):
-                    for file in output.values():
-                        try:
-                            os.remove(os.path.join(conf.DataCache.path, file))
-                            logger.debug("{}: removed file '{}' from data-cache".format(self.name, file))
-                        except Exception:
-                            pass
+        logger.debug(self.__stage_outputs)
+        for st_outputs in self.__stage_outputs.values():
+            for output in st_outputs:
+                for file in output.values():
+                    try:
+                        os.remove(os.path.join(conf.DataCache.path, file))
+                        logger.debug("{}: removed file '{}' from data-cache".format(self.name, file))
+                    except Exception:
+                        pass
 
     def __mapInput(self, output: dict, input_map: dict, prefix=""):
         input = dict()
