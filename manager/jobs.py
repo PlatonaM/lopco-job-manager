@@ -81,7 +81,6 @@ class Worker(threading.Thread):
         self.__active_kvs.set(self.name, json.dumps(self.__job_data))
 
     def __cleanup(self):
-        logger.debug(self.__stage_outputs)
         for st_outputs in self.__stage_outputs.values():
             for output in st_outputs:
                 for file in output.values():
