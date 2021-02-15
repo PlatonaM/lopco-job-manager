@@ -222,8 +222,8 @@ class Worker(threading.Thread):
 
     def run(self):
         logger.info("{}: starting ...".format(self.name))
-        self.__set_job_status(model.JobStatus.running)
         try:
+            self.__set_job_status(model.JobStatus.running)
             self.__get_pipeline()
             self.__stage_outputs[str(0)] = self.__job_data[model.Job.init_sources]
             for st_num in range(1, len(self.__pipeline[model.Pipeline.stages]) + 1):
