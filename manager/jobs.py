@@ -83,12 +83,15 @@ class Worker(threading.Thread):
     def __cleanup(self):
         for st_outputs in self.__stage_outputs.values():
             for output in st_outputs:
-                for file in output.values():
-                    try:
-                        os.remove(os.path.join(conf.DataCache.path, file))
-                        logger.debug("{}: removed file '{}' from data-cache".format(self.name, file))
-                    except Exception:
-                        pass
+                try:
+                    for file in output.values():
+                        try:
+                            os.remove(os.path.join(conf.DataCache.path, file))
+                            logger.debug("{}: removed file '{}' from data-cache".format(self.name, file))
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
 
     def __map_input(self, output: dict, input_map: dict, prefix=""):
         input = dict()
