@@ -1,3 +1,38 @@
+## lopco-job-manager
+
+Central service for the execution of LOPCO pipelines. The execution of a pipeline is done by a job. 
+For this purpose, the service accesses the [machine](https://github.com/PlatonaM/lopco-machine-registry) and [pipeline](https://github.com/PlatonaM/lopco-pipeline-registry) registry as well as the [deployment manager](https://github.com/PlatonaM/lopco-deployment-manager).
+Via the latter, the job manager launches the workers required for a pipeline as Docker containers. 
+Jobs can be started, listed, monitored and stopped via an HTTP API.
+
+### Configuration
+
+`CONF_LOGGER_LEVEL`: Set logging level to `info`, `warning`, `error`, `critical` or `debug`.
+
+`CONF_PIPELINEREGISTRY_URL`: URL of pipeline registry.
+
+`CONF_PIPELINEREGISTRY_API`: Pipeline registry endpoint.
+
+`CONF_DEPLOYMENTMANAGER_URL`: URL of deployment manager.
+
+`CONF_DEPLOYMENTMANAGER_API`: Deployment manager endpoint.
+
+`CONF_MACHINEREGISTRY_URL`: URL of machine registry.
+
+`CONF_MACHINEREGISTRY_API`: Machine registry endpoint.
+
+`CONF_WORKERCALLBACK_ENV_VAR`: Name of environment variable containing the worker callback URL.
+
+`CONF_WORKERCALLBACK_URL`: Job manager URL.
+
+`CONF_WORKERCALLBACK_API`: Worker callback endpoint.
+
+`CONF_JOBS_MAX_NUM`: Number of parallel jobs.
+
+`CONF_JOBS_CHECK`: Determine how often the manager checks if new jobs are available.
+
+`CONF_DATACACHE_PATH`: Path to LOPCO data cache volume.
+
 ### Data Structures
 
 #### Job
