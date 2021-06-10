@@ -77,8 +77,12 @@ class ActiveJobs:
                 job_data[model.Job.created] = '{}Z'.format(datetime.datetime.utcnow().isoformat())
                 self.__kvs.set(job_id, json.dumps(job_data))
                 self.__job_queue.put_nowait(job_id)
+                resp.content_type = falcon.MEDIA_TEXT
+                resp.body = job_id
                 resp.status = falcon.HTTP_200
             else:
+                resp.content_type = falcon.MEDIA_TEXT
+                resp.body = job_id
                 resp.status = falcon.HTTP_409
         except Exception as ex:
             resp.status = falcon.HTTP_500

@@ -184,6 +184,9 @@ _Start a new job._
     -H 'Content-Type: application/json' \
     -X POST http://<host>/jobs
 
+    # response with job ID as text
+    -Fm3IrWXyMFGAnwgt6Jyow
+
 ----
 
 #### /jobs/{job}
